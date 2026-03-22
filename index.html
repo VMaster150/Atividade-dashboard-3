@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Controle Financeiro</title>
+
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <header>
+      <h1>Controle Financeiro Pessoal</h1>
+    </header>
+
+    <div class="saldo">
+      Saldo atual: <strong id="saldoAtual">R$ 0,00</strong>
+      <div class="depositos">Depósitos: <strong id="totaldedepositos">R$ 0,00</strong></div>
+      <div class="despesas">Despesas: <strong id="totaldedespesas">R$ 0,00</strong></div>
+    </div>
+
+    <div class="saldo2">
+      <h1 class="NL">Novo Lançamento</h1>
+      <form id="formTransacao">
+        <input type="date" id="data" required>
+        <select id="tipo" required>
+          <option value="" disabled selected>Tipo</option>
+          <option value="depósito">Depósito</option>
+          <option value="despesa">Despesa</option>
+        </select>
+        <input type="number" id="valor" placeholder="Valor" step="0.01" min="0.01" required>
+        <select id="categoria"></select>
+        <input type="text" id="descricao" placeholder="Descrição (opcional)">
+        <button type="submit">Adicionar</button>
+      </form>
+    </div>
+
+    <div class="grid">
+      <div class="box">
+        <h2>Controle Geral</h2>
+        <div class="chart-container">
+          <canvas id="graficoControle"></canvas>
+        </div>
+        <div id="alerta-orcamento" class="alert"></div>
+      </div>
+
+      <div class="box">
+        <h2>Despesas por Categoria</h2>
+        <div class="chart-container">
+          <canvas id="graficoCategorias"></canvas>
+        </div>
+      </div>
+
+      <div class="box full-width">
+        <h2>Extrato</h2>
+        <table id="tabelaTransacoes">
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Tipo</th>
+              <th>Categoria</th>
+              <th>Descrição</th>
+              <th>Valor</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      Atividade 2 • Salvo no navegador (localStorage)
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+
+</html>
