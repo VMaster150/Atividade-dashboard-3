@@ -1,10 +1,8 @@
-// Dados e configurações
 let transacoes = JSON.parse(localStorage.getItem('transacoes')) || [];
 let categorias = JSON.parse(localStorage.getItem('categorias')) || [
   "Alimentação", "Transporte", "Moradia", "Lazer", "Saúde", "Educação",
 ];
 
-// Gráfico do Controle
 let chartControle;
 
 const form = document.getElementById('formTransacao');
@@ -109,7 +107,6 @@ function removerCategoriaPersonalizavel() {
   
 }
 
-// Despesas por Categoria
 function atualizarGraficoDespesas() {
   const despesasPorCat = {};
 
@@ -149,7 +146,6 @@ function atualizarGraficoDespesas() {
   });
 }
 
-// ! Controle
 function atualizarGraficoControle() {
 
   let controle = {};
