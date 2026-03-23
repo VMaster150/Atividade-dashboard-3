@@ -15,8 +15,6 @@ if (!categorias.includes("Outros")) {
   categorias.push("Outros")
 }
 
-
-
 salvarDados();
 
 // Gráfico do Controle
@@ -118,7 +116,7 @@ function adicionarCategoriaPersonalizavel() {
     }
   }
 
-function removerCategoriaPersonalizavel() {
+function removerCategoria(nomeCategoria) {
   if (!confirm(`Deseja excluir essa categoria?  "${nomeCategoria}"`)) {
     return;
   }
@@ -131,6 +129,21 @@ function removerCategoriaPersonalizavel() {
     salvarDados();
     atualizarTudo();
   })
+}
+
+function removerCategoriaPrompt() {
+
+  const lista = categorias.join("\n");
+  const nome = prompt("Digite o nome da categoria que deseja remover: \n\n" + lista);
+
+  if (!nome) {
+    return;
+  }
+  if (!categorias.includes(nome)) {
+    alert("Categoria não encontrada!");
+    return;
+  }
+  removerCategoria(nome);
 }
 
 // Despesas por Categoria
