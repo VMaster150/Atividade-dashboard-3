@@ -282,7 +282,7 @@ function mostrarTransacaoRecente() {
   const recentes = [...transacoes].sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 5);
   recentes.forEach(trans => {
     const div = document.createElement('div');
-    div.textContent = `${trans.descricao || '-'} - ${formatarMoeda(trans.valor)}`;
+    div.textContent = `${new Date(trans.data).toLocaleDateString('pt-BR')} - ${trans.descricao || '-'} - ${formatarMoeda(trans.valor)}`;
     container.appendChild(div);
   });
 }
