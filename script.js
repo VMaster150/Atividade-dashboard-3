@@ -11,6 +11,10 @@ let categorias = JSON.parse(localStorage.getItem('categorias')) || [
   "Receita (Outros)"
 ];
 
+
+
+salvarDados();
+
 // Gráfico do Controle
 let chartControle;
 
@@ -98,7 +102,6 @@ function adicionarCategoriaPersonalizavel() {
         categorias.push(nomeLimpo);
         salvarDados();
         popularSelectCategorias();
-        renderizarCategorias();
         selectCat.value = nomeLimpo;
         alert(`Categoria "${nomeLimpo}" adicionada com sucesso!`);
       } else {
@@ -147,8 +150,6 @@ function atualizarGraficoDespesas() {
       plugins: {
         legend: { position: 'bottom'},
         title: {
-          display: true,
-          text: 'Despesas por Categoria'
         }
       }
     }
@@ -280,7 +281,7 @@ function atualizarTudo() {
   calcularTotalDespesas();
   atualizarGraficoDespesas();
   atualizarGraficoControle();
-  renderizarCategorias();
+  popularSelectCategorias();
 }
 
 form.addEventListener('submit', e => {
