@@ -1,7 +1,14 @@
 // Dados e configurações
 let transacoes = JSON.parse(localStorage.getItem('transacoes')) || [];
 let categorias = JSON.parse(localStorage.getItem('categorias')) || [
-  "Alimentação", "Transporte", "Moradia", "Lazer", "Saúde", "Educação",
+  "Alimentação",
+  "Transporte",
+  "Moradia",
+  "Lazer",
+  "Saúde",
+  "Educação",
+  "Receita (Salário)",
+  "Receita (Outros)"
 ];
 
 // Gráfico do Controle
@@ -70,14 +77,13 @@ function popularSelectCategorias() {
 selectCat.addEventListener('change', adicionarCategoriaPersonalizavel);
 
 function renderizarCategorias() {
-  const lista = document.getElementById('categorias-lista');
-  select.innerHTML = '';
+  selectCat.innerHTML = '';
 
-  categorias.forEach((cat, index) => {
+  categorias.forEach((cat) => {
     const option = document.createElement('option');
     option.value = cat;
     option.textContent = cat;
-    select.appendChild(option);
+    selectCat.appendChild(option);
   });
 }
 
@@ -173,8 +179,15 @@ function atualizarGraficoControle() {
     }
   });
   
-  const labels = Object.keys(controle);
-  const valores = Object.values(controle);
+  const labels = [];
+  const valores = [];
+
+  for (let categoria in controle) {
+    if(controle[categoria] > 0) {
+      labels.push(categoria);
+      valores.push(controle[categoria]);
+    }
+  }
 
   if (chartControle) {
     chartControle.destroy();
@@ -193,18 +206,30 @@ function atualizarGraficoControle() {
       responsive: true
     }
   });
-
 }
 
 function listarTransacoes() {
   tabelaBody.innerHTML = '';
 
-  const ordenadas = [...transacoes].sort((a,b) => new Date(b.data) - new Date(a.data));
+  const tipoFiltro = document.getElementById('filtroTipo').value;
+  const busca = document.getElementById('buscaDescricao').value.toLowerCase();
+  
+  let filtradas = transacoes;
 
-  ordenadas.forEach((trans, index) => {
+  if (tipoFiltro) {
+    filtradas = filtradas.filter(t => t.tipo === tipoFiltro);
+  }
+
+  if (busca) {
+    filtradas = filtradas.filter(t => (t.descricao || '').toLowerCase().includes(busca));
+  }
+
+  const ordenadas = [...filtradas].sort((a,b) => new Date(b.data) - new Date(a.data));
+
+  ordenadas.forEach((trans) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${new Date(trans.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+      <td>${new Date(trans.data).toLocaleDateString('pt-BR')}</td>
       <td>${trans.tipo}</td>
       <td>${trans.categoria || '-'}</td>
       <td>${trans.descricao || '-'}</td>
@@ -212,16 +237,38 @@ function listarTransacoes() {
         ${formatarMoeda(trans.valor)}
       </td>
       <td>
-        <button class="btn-delete" onclick="removerTransacao(${index})">Excluir</button>
+        <button onclick="editarTransacao(${trans.id})">Editar</button>
+        <button class="btn-delete" onclick="removerTransacao(${trans.id})">Excluir</button>
       </td>
     `;
     tabelaBody.appendChild(tr);
   });
 }
 
-function removerTransacao(index) {
+function editarTransacao(id) {
+  const trans = transacoes.find(t => t.id === id);
+
+  const novoValor = prompt("Novo valor:", trans.valor);
+  if (novoValor === null) {
+    return;
+  }
+
+  const novaDescricao = prompt("Nova descrição:", trans.descricao);
+  if (novaDescricao === null) {
+    return;
+  }
+
+  trans.valor = Number(novoValor);
+  trans.descricao = novaDescricao;
+
+  salvarDados();
+  atualizarTudo();
+}
+
+function removerTransacao(id) {
   if (!confirm('Deseja realmente excluir esta transação?')) return;
-  transacoes.splice(index, 1);
+  transacoes = transacoes.filter(t => t.id !== id);
+
   salvarDados();
   atualizarTudo();
 }
@@ -248,6 +295,7 @@ form.addEventListener('submit', e => {
   }
 
   const novaTrans = {
+    id: Date.now(),
     data: document.getElementById('data').value,
     tipo: tipoSelecionado,
     valor: Number(document.getElementById('valor').value),
@@ -263,3 +311,6 @@ form.addEventListener('submit', e => {
 
 popularSelectCategorias();
 atualizarTudo();
+
+document.getElementById('filtroTipo').addEventListener('change', atualizarTudo);
+document.getElementById('buscaDescricao').addEventListener('input', atualizarTudo);
