@@ -83,7 +83,46 @@ function popularSelectCategorias() {
 selectCat.addEventListener('change', adicionarCategoriaPersonalizavel);
 
 function renderizarCategorias() {
-  selectCat.innerHTML = '';
+  const container =  document.getElementById('orcamentos');
+  if (!container) return;
+  container.innerHTML = '<h3>Resumo de Gastos por Categoria</h3>';
+
+  const gastosPorCategoria = {};
+  transacoes.forEach(t => {
+    if (t.tipo === 'despesa' && t.categoria) {
+      gastosPorCategoria[t.categoria] = (gastosPorCategoria[t.categoria] || 0) + t.valor;
+    }
+  });
+  
+  categorias.forEach(cat => {
+    if (cat.includes("Receita")) return;
+
+    const gastoAtual = gastosPorCategoria[cat] || 0;
+    const limite = orcamentos[cat] || 0;
+    
+    let infoPercentual = "";
+    let classeCor = "";
+
+    if (limite > 0) {
+      const percentual = (gastoAtual / limite) * 100;
+      infoPercentual = `(${percentual.toFixed(1)}%)`;
+      classeCor = percentual > 100 ? 'text-danger' : 'text-success';
+    } else {
+      infoPercentual = "(Sem meta)";
+    }
+
+    const div = document.createElement('div');
+    div.style.margin = "10px 0";
+    div.innerHTML = `
+      <strong>${cat}:</strong> ${formatarMoeda(gastoAtual)} 
+      <span class="${classeCor}" style="font-weight: bold;">${infoPercentual}</span>
+      <br>
+      <small>Meta: ${limite > 0 ? formatarMoeda(limite) : 'Não definida'}</small>
+      <hr>
+    `;
+    container.appendChild(div);
+  });
+}
 
   categorias.forEach((cat) => {
     const option = document.createElement('option');
@@ -91,7 +130,6 @@ function renderizarCategorias() {
     option.textContent = cat;
     selectCat.appendChild(option);
   });
-}
 
 function adicionarCategoriaPersonalizavel() {
   if(this.value === "Criar Nova Categoria") {
@@ -287,6 +325,30 @@ function mostrarTransacaoRecente() {
   });
 }
 
+let orcamentos = JSON.parse(localStorage.getItem('orcamentos')) || {};
+
+function salvarOrcamentos() {
+  localStorage.setItem('orcamentos', JSON.stringify(orcamentos));
+}
+
+function renderizarOrcamentos() {
+  const container = document.getElementById('orcamentos');
+  container.innerHTML = '';
+  categorias.forEach(cat => {
+    const div = document.createElement('div');
+    div.innerHTML = `
+      ${cat}: 
+      <input type="number" min="0" step="0.01" placeholder="R$" value="${orcamentos[cat] || ''}" onchange="setOrcamento('${cat}', this.value)">
+    `;
+    container.appendChild(div);
+  });
+}
+
+function setOrcamento(categoria, valor) {
+  orcamentos[categoria] = Number(valor) || 0;
+  salvarOrcamentos();
+}
+
 function editarTransacao(id) {
   const trans = transacoes.find(t => t.id === id);
 
@@ -324,6 +386,8 @@ function atualizarTudo() {
   atualizarGraficoControle();
   popularSelectCategorias();
   mostrarTransacaoRecente();
+  renderizarCategorias();
+  renderizarOrcamentos();
 }
 
 form.addEventListener('submit', e => {
@@ -357,3 +421,47 @@ atualizarTudo();
 
 document.getElementById('filtroTipo').addEventListener('change', atualizarTudo);
 document.getElementById('buscaDescricao').addEventListener('input', atualizarTudo);
+
+/* codigo da Funcao de acompanhamento de requisito; (esta com erros e nao deu tempo terminar);
+function renderizarCategorias() {
+  const container = document.getElementById('orcamentos');
+  if (!container) return; // Garante que o elemento existe no seu HTML
+  
+  container.innerHTML = '<h3>Resumo de Gastos por Categoria</h3>';
+
+  const gastosPorCategoria = {};
+  transacoes.forEach(t => {
+    if (t.tipo === 'despesa' && t.categoria) {
+      gastosPorCategoria[t.categoria] = (gastosPorCategoria[t.categoria] || 0) + t.valor;
+    }
+  });
+
+  categorias.forEach(cat => {
+    if (cat.includes("Receita")) return;
+    const gastoAtual = gastosPorCategoria[cat] || 0;
+    const limite = orcamentos[cat] || 0;
+    
+    let infoPercentual = "";
+    let classeCor = "";
+
+    if (limite > 0) {
+      const percentual = (gastoAtual / limite) * 100;
+      infoPercentual = `(${percentual.toFixed(1)}%)`;
+      classeCor = percentual > 100 ? 'text-danger' : 'text-success';
+    } else {
+      infoPercentual = "(Sem meta)";
+    }
+
+    const div = document.createElement('div');
+    div.style.margin = "10px 0";
+    div.innerHTML = `
+      <strong>${cat}:</strong> ${formatarMoeda(gastoAtual)} 
+      <span class="${classeCor}" style="font-weight: bold;">${infoPercentual}</span>
+      <br>
+      <small>Meta: ${limite > 0 ? formatarMoeda(limite) : 'Não definida'}</small>
+      <hr>
+    `;
+    container.appendChild(div);
+  });
+}
+  */
