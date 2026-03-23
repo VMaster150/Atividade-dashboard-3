@@ -126,9 +126,9 @@ function removerCategoria(nomeCategoria) {
     if (t.categoria === nomeCategoria) {
       t.categoria = "Outros";
     }
-    salvarDados();
-    atualizarTudo();
   })
+  salvarDados();
+  atualizarTudo();
 }
 
 function removerCategoriaPrompt() {
@@ -274,6 +274,19 @@ function listarTransacoes() {
   });
 }
 
+function mostrarTransacaoRecente() {
+  const container = document.getElementById('transacoesRecentes');
+
+  container.innerHTML = '';
+
+  const recentes = [...transacoes].sort((a, b) => new Date(b.data) - new Date(a.data)).slice(0, 5);
+  recentes.forEach(trans => {
+    const div = document.createElement('div');
+    div.textContent = `${trans.descricao || '-'} - ${formatarMoeda(trans.valor)}`;
+    container.appendChild(div);
+  });
+}
+
 function editarTransacao(id) {
   const trans = transacoes.find(t => t.id === id);
 
@@ -310,6 +323,7 @@ function atualizarTudo() {
   atualizarGraficoDespesas();
   atualizarGraficoControle();
   popularSelectCategorias();
+  mostrarTransacaoRecente();
 }
 
 form.addEventListener('submit', e => {
