@@ -77,14 +77,13 @@ function popularSelectCategorias() {
 selectCat.addEventListener('change', adicionarCategoriaPersonalizavel);
 
 function renderizarCategorias() {
-  const lista = document.getElementById('categorias-lista');
-  select.innerHTML = '';
+  selectCat.innerHTML = '';
 
-  categorias.forEach((cat, index) => {
+  categorias.forEach((cat) => {
     const option = document.createElement('option');
     option.value = cat;
     option.textContent = cat;
-    select.appendChild(option);
+    selectCat.appendChild(option);
   });
 }
 
@@ -180,8 +179,15 @@ function atualizarGraficoControle() {
     }
   });
   
-  const labels = Object.keys(controle);
-  const valores = Object.values(controle);
+  const labels = [];
+  const valores = [];
+
+  for (let categoria in controle) {
+    if(controle[categoria] > 0) {
+      labels.push(categoria);
+      valores.push(controle[categoria]);
+    }
+  }
 
   if (chartControle) {
     chartControle.destroy();
@@ -206,11 +212,16 @@ function listarTransacoes() {
   tabelaBody.innerHTML = '';
 
   const tipoFiltro = document.getElementById('filtroTipo').value;
-
+  const busca = document.getElementById('buscaDescricao').value.toLowerCase();
+  
   let filtradas = transacoes;
 
   if (tipoFiltro) {
     filtradas = filtradas.filter(t => t.tipo === tipoFiltro);
+  }
+
+  if (busca) {
+    filtradas = filtradas.filter(t => (t.descricao || '').toLowerCase().includes(busca));
   }
 
   const ordenadas = [...filtradas].sort((a,b) => new Date(b.data) - new Date(a.data));
@@ -218,7 +229,7 @@ function listarTransacoes() {
   ordenadas.forEach((trans) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
-      <td>${new Date(trans.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
+      <td>${new Date(trans.data).toLocaleDateString('pt-BR')}</td>
       <td>${trans.tipo}</td>
       <td>${trans.categoria || '-'}</td>
       <td>${trans.descricao || '-'}</td>
@@ -301,4 +312,5 @@ form.addEventListener('submit', e => {
 popularSelectCategorias();
 atualizarTudo();
 
-document.getElementById('filtroTipo').addEventListener('change', atualizarTudo)
+document.getElementById('filtroTipo').addEventListener('change', atualizarTudo);
+document.getElementById('buscaDescricao').addEventListener('input', atualizarTudo);
