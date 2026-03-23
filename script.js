@@ -425,42 +425,25 @@ document.getElementById('buscaDescricao').addEventListener('input', atualizarTud
 /* codigo da Funcao de acompanhamento de requisito; (esta com erros e nao deu tempo terminar);
 function renderizarCategorias() {
   const container = document.getElementById('orcamentos');
-  if (!container) return; // Garante que o elemento existe no seu HTML
-  
+  if (!container) return;
   container.innerHTML = '<h3>Resumo de Gastos por Categoria</h3>';
 
-  const gastosPorCategoria = {};
+  const gastos = {};
   transacoes.forEach(t => {
-    if (t.tipo === 'despesa' && t.categoria) {
-      gastosPorCategoria[t.categoria] = (gastosPorCategoria[t.categoria] || 0) + t.valor;
+    if (t.tipo === 'despesa') {
+      gastos[t.categoria || "Outros"] = (gastos[t.categoria || "Outros"] || 0) + t.valor;
     }
   });
 
   categorias.forEach(cat => {
     if (cat.includes("Receita")) return;
-    const gastoAtual = gastosPorCategoria[cat] || 0;
+    const gastoAtual = gastos[cat] || 0;
     const limite = orcamentos[cat] || 0;
-    
-    let infoPercentual = "";
-    let classeCor = "";
-
-    if (limite > 0) {
-      const percentual = (gastoAtual / limite) * 100;
-      infoPercentual = `(${percentual.toFixed(1)}%)`;
-      classeCor = percentual > 100 ? 'text-danger' : 'text-success';
-    } else {
-      infoPercentual = "(Sem meta)";
-    }
-
+    const percentual = limite > 0 ? (gastoAtual / limite) * 100 : 0;
+    const classe = limite > 0 ? (percentual > 100 ? 'text-danger' : 'text-success') : '';
+    const infoPercentual = limite > 0 ? `(${percentual.toFixed(1)}%)` : '(Sem meta)';
     const div = document.createElement('div');
-    div.style.margin = "10px 0";
-    div.innerHTML = `
-      <strong>${cat}:</strong> ${formatarMoeda(gastoAtual)} 
-      <span class="${classeCor}" style="font-weight: bold;">${infoPercentual}</span>
-      <br>
-      <small>Meta: ${limite > 0 ? formatarMoeda(limite) : 'Não definida'}</small>
-      <hr>
-    `;
+    div.innerHTML = `<strong>${cat}:</strong> ${formatarMoeda(gastoAtual)} <span class="${classe}">${infoPercentual}</span><br><small>Meta: ${limite > 0 ? formatarMoeda(limite) : 'Não definida'}</small><hr>`;
     container.appendChild(div);
   });
 }
