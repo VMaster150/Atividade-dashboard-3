@@ -234,3 +234,15 @@ footer {
 .button-group {
   margin-left: 5px;
 }
+
+.filtro-container {
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 12px;
+}
+
+.filtro-container label {
+  font-size: 0.95rem;
+  color: #AAAAAA;
+}

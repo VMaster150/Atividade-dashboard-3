@@ -1,7 +1,14 @@
 // Dados e configurações
 let transacoes = JSON.parse(localStorage.getItem('transacoes')) || [];
 let categorias = JSON.parse(localStorage.getItem('categorias')) || [
-  "Alimentação", "Transporte", "Moradia", "Lazer", "Saúde", "Educação",
+  "Alimentação",
+  "Transporte",
+  "Moradia",
+  "Lazer",
+  "Saúde",
+  "Educação",
+  "Receita (Salário)",
+  "Receita (Outros)"
 ];
 
 // Gráfico do Controle
@@ -193,15 +200,22 @@ function atualizarGraficoControle() {
       responsive: true
     }
   });
-
 }
 
 function listarTransacoes() {
   tabelaBody.innerHTML = '';
 
-  const ordenadas = [...transacoes].sort((a,b) => new Date(b.data) - new Date(a.data));
+  const tipoFiltro = document.getElementById('filtroTipo').value;
 
-  ordenadas.forEach((trans, index) => {
+  let filtradas = transacoes;
+
+  if (tipoFiltro) {
+    filtradas = filtradas.filter(t => t.tipo === tipoFiltro);
+  }
+
+  const ordenadas = [...filtradas].sort((a,b) => new Date(b.data) - new Date(a.data));
+
+  ordenadas.forEach((trans) => {
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${new Date(trans.data + 'T00:00:00').toLocaleDateString('pt-BR')}</td>
@@ -212,16 +226,38 @@ function listarTransacoes() {
         ${formatarMoeda(trans.valor)}
       </td>
       <td>
-        <button class="btn-delete" onclick="removerTransacao(${index})">Excluir</button>
+        <button onclick="editarTransacao(${trans.id})">Editar</button>
+        <button class="btn-delete" onclick="removerTransacao(${trans.id})">Excluir</button>
       </td>
     `;
     tabelaBody.appendChild(tr);
   });
 }
 
-function removerTransacao(index) {
+function editarTransacao(id) {
+  const trans = transacoes.find(t => t.id === id);
+
+  const novoValor = prompt("Novo valor:", trans.valor);
+  if (novoValor === null) {
+    return;
+  }
+
+  const novaDescricao = prompt("Nova descrição:", trans.descricao);
+  if (novaDescricao === null) {
+    return;
+  }
+
+  trans.valor = Number(novoValor);
+  trans.descricao = novaDescricao;
+
+  salvarDados();
+  atualizarTudo();
+}
+
+function removerTransacao(id) {
   if (!confirm('Deseja realmente excluir esta transação?')) return;
-  transacoes.splice(index, 1);
+  transacoes = transacoes.filter(t => t.id !== id);
+
   salvarDados();
   atualizarTudo();
 }
@@ -248,6 +284,7 @@ form.addEventListener('submit', e => {
   }
 
   const novaTrans = {
+    id: Date.now(),
     data: document.getElementById('data').value,
     tipo: tipoSelecionado,
     valor: Number(document.getElementById('valor').value),
@@ -263,3 +300,5 @@ form.addEventListener('submit', e => {
 
 popularSelectCategorias();
 atualizarTudo();
+
+document.getElementById('filtroTipo').addEventListener('change', atualizarTudo)
