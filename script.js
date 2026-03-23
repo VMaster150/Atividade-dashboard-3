@@ -11,6 +11,10 @@ let categorias = JSON.parse(localStorage.getItem('categorias')) || [
   "Receita (Outros)"
 ];
 
+if (!categorias.includes("Outros")) {
+  categorias.push("Outros")
+}
+
 
 
 salvarDados();
@@ -115,7 +119,18 @@ function adicionarCategoriaPersonalizavel() {
   }
 
 function removerCategoriaPersonalizavel() {
-  
+  if (!confirm(`Deseja excluir essa categoria?  "${nomeCategoria}"`)) {
+    return;
+  }
+  categorias = categorias.filter(c => c !== nomeCategoria);
+
+  transacoes.forEach(t => {
+    if (t.categoria === nomeCategoria) {
+      t.categoria = "Outros";
+    }
+    salvarDados();
+    atualizarTudo();
+  })
 }
 
 // Despesas por Categoria
